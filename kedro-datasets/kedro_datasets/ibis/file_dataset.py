@@ -147,9 +147,11 @@ class FileDataset(ConnectionMixin, AbstractVersionedDataset[ir.Table, ir.Table])
         self.metadata = metadata
 
         super().__init__(
-            filepath=PurePosixPath(filepath),
+            filepath=filepath if self._is_cloud else PurePosixPath(filepath),
             version=version,
-            exists_function=lambda filepath: Path(filepath).exists(),
+            exists_function=(
+                None if self._is_cloud else lambda filepath: Path(filepath).exists()
+            ),
         )
 
         # Set load and save arguments, overwriting defaults if provided.
